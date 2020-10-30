@@ -3,6 +3,7 @@ package com.company.Client;
 import com.company.Model.VehicleInfo;
 
 import javax.swing.*;
+import javax.swing.table.TableModel;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -93,6 +94,7 @@ class MyTableModel extends AbstractTableModel {
         return columnNames.length;
     }
 
+    @Override
     public String getColumnName(int column) {
         return columnNames[column].toString();
     }
@@ -102,15 +104,22 @@ class MyTableModel extends AbstractTableModel {
         return data[rowIndex][columnIndex];
     }
 
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return true;
+        return rowIndex!=0;
+    }
+
+    @Override
+    public void setValueAt(Object newValue, int rowIndex, int columnIndex) {
+        data[rowIndex][columnIndex] = newValue;
+        fireTableCellUpdated(rowIndex, columnIndex);
     }
 }
 
 class GetVehicleInfo extends JDialog {
     public JPanel panel;
-    public JLabel carId, carManufactory, carModel, ifAvailable;
-    public JTextField IdInputBox, ManInputBox, ModelInputBox;
+    public JLabel carId, carManufactory, carModel, carPrice, ifAvailable;
+    public JTextField IdInputBox, ManInputBox, ModelInputBox, PriceInputBox;
     public JRadioButton avaiable, unavaiable;
     public ButtonGroup group;
     public JButton btnConfirm;
@@ -118,9 +127,9 @@ class GetVehicleInfo extends JDialog {
     public boolean flag;//true代表Add；flase代表Search
 
     public GetVehicleInfo(Frame owner, Component parentComponent, boolean flag) {
-        super(owner, "查询条件", true);
+        super(owner, "请输入相关信息", true);
         this.flag = flag;
-        this.setSize(300,200);
+        this.setSize(300,230);
         this.setLocationRelativeTo(parentComponent);
 
         panel = new JPanel(null);
@@ -146,13 +155,20 @@ class GetVehicleInfo extends JDialog {
         ModelInputBox.setBounds(100, 80, 165, 25);
         panel.add(ModelInputBox);
 
+        carPrice = new JLabel("租赁价格: ");
+        carPrice.setBounds(35,110,80,25);
+        panel.add(carPrice);
+        PriceInputBox = new JTextField(20);
+        PriceInputBox.setBounds(100, 110, 165, 25);
+        panel.add(PriceInputBox);
+
         ifAvailable = new JLabel("是否可用: ");
-        ifAvailable.setBounds(35,110,80,25);
+        ifAvailable.setBounds(35,140,80,25);
         panel.add(ifAvailable);
         avaiable = new JRadioButton("是");
-        avaiable.setBounds(110,110,50,25);
+        avaiable.setBounds(110,140,50,25);
         unavaiable = new JRadioButton("否");
-        unavaiable.setBounds(190, 110, 50, 25);
+        unavaiable.setBounds(190, 140, 50, 25);
 
         group = new ButtonGroup();
         group.add(avaiable);
@@ -161,7 +177,7 @@ class GetVehicleInfo extends JDialog {
         panel.add(unavaiable);
 
         btnConfirm = new JButton("确认");
-        btnConfirm.setBounds(80, 145, 120,25);
+        btnConfirm.setBounds(80, 175, 120,25);
         panel.add(btnConfirm);
         this.btnConfirm.addActionListener(new ActionListener() {
             @Override
@@ -169,6 +185,7 @@ class GetVehicleInfo extends JDialog {
                 String carId = IdInputBox.getText();
                 String carManufactory = ManInputBox.getText();
                 String carModel = ModelInputBox.getText();
+                String carPrice = PriceInputBox.getText();
                 Boolean isAvaiable = null;
                 for (Component c:panel.getComponents()) {
                     if (c instanceof JRadioButton) {
@@ -180,7 +197,7 @@ class GetVehicleInfo extends JDialog {
                         }
                     }
                 }
-                setInfo(new VehicleInfo(carId, carManufactory,carModel,isAvaiable));
+                setInfo(new VehicleInfo(carId, carManufactory,carModel,carPrice,isAvaiable));
                if (flag) {
                    if (Rules.determineAdd(getVehicleInfo(), info))
                        dispose();
@@ -214,7 +231,10 @@ class Rules {
         } else if(info.carModel.equals("")) {
             JOptionPane.showMessageDialog(getDialog, "请输入车辆型号信息", "输入信息不全", 0);
             return false;
-        } else if (info.isAvaialble == null) {
+        } else if (info.carPrice.equals("")) {
+            JOptionPane.showMessageDialog(getDialog,"请输入租赁价格/日", "输入信息不全", 0);
+            return false;
+        } if (info.isAvaialble == null) {
             JOptionPane.showMessageDialog(getDialog, "请选择是否可用", "输入信息不全", 0);
             return false;
         } else {
