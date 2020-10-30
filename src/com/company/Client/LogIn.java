@@ -13,6 +13,7 @@ public class LogIn extends JPanel {
         init();
         this.setVisible(true);
     }
+
     public void init() {
         this.userTag = new JLabel("UserName: ");
         this.userTag.setBounds(10,20,80,25);
@@ -35,8 +36,4 @@ public class LogIn extends JPanel {
         this.add(btn_login);
 
     }
-    public void hide_panel() {
-        this.setVisible(false);
-    }
-
 }

@@ -12,21 +12,36 @@ public class Main {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         LogIn logIn = new LogIn();
-        Search search = new Search();
-        frame.add(logIn);
+        MainPage mainPage = new MainPage();
+        frame.add(mainPage);
 
         logIn.btn_login.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (logIn.userInputBox.getText().equals("aaa") && String.valueOf(logIn.pwdInputBox.getPassword()).equals("bbb")) {
                     frame.getContentPane().setVisible(false);
-                    frame.setContentPane(search);
+                    frame.setContentPane(mainPage);
                 } else {
-                    logIn.userInputBox.setText("用户名或密码错误");
+                    JOptionPane.showMessageDialog(logIn, "用户名或密码错误","错误", 0);
                 }
 
             }
         });
+
+        mainPage.toolbar.btnAdd.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new GetVehicleInfo(frame, mainPage,true);
+            }
+        });
+
+        mainPage.toolbar.btnSearch.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new GetVehicleInfo(frame, mainPage, false);
+            }
+        });
+
         frame.setVisible(true);
     }
 
