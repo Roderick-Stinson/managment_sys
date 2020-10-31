@@ -30,7 +30,7 @@ public class Server {
         List<Object> info;
         String sql = "SELECT * FROM carList;";
         PreparedStatement pstmt = con.prepareStatement(sql);
-        ResultSet rs = pstmt.executeQuery(sql);
+        ResultSet rs = pstmt.executeQuery();
         while (rs.next()) {
             info = new ArrayList<>();
             int carId = rs.getInt(1);
@@ -66,6 +66,16 @@ public class Server {
         int rst = pstmt.executeUpdate();
         dbUtil.close(pstmt, con);
 
+    }
+
+    public static void deleteRecord(int carId) throws Exception {
+        DbUtil dbUtil = new DbUtil();
+        Connection con = dbUtil.getCon();
+        String sql = "DELETE FROM carList WHERE carId=?;";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        pstmt.setInt(1, carId);
+        int rst = pstmt.executeUpdate();
+        dbUtil.close(pstmt, con);
     }
 
 
