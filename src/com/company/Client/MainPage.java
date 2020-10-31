@@ -1,30 +1,41 @@
 package com.company.Client;
 
 import com.company.Model.VehicleInfo;
+import com.company.Server.Server;
 
 import javax.swing.*;
-import javax.swing.table.TableModel;
 import javax.swing.table.AbstractTableModel;
-import java.awt.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Frame;
+import java.awt.Component;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import java.util.List;
 
 public class MainPage extends JPanel {
     public MyToolBar toolbar;
     public JScrollPane scrollPane;
     public JTable table;
 
-    public MainPage() {
+    public MainPage() throws Exception {
         super(new BorderLayout());
         init();
         this.setVisible(true);
     }
 
-    public void init() {
+    public void init() throws Exception {
         toolbar = new MyToolBar();
         this.add(this.toolbar, BorderLayout.NORTH);
 
-        table = new JTable(new MyTableModel());
+        table = new JTable(new MyTableModel(Server.searchRecord()));
         table.setPreferredScrollableViewportSize(new Dimension(400, 300));
 
         this.scrollPane = new JScrollPane(table);
@@ -51,42 +62,16 @@ class MyToolBar extends JPanel {
 }
 
 class MyTableModel extends AbstractTableModel {
-    private Object[] columnNames = {"车辆编号", "生产厂商", "车辆型号", "租赁价格/日", "是否可用"};
-    private Object[][] data = {
-            {"111", "BMW", "A6", "500", "是"},
-            {"112", "BMW", "A6", "500", "是"},
-            {"113", "BMW", "A6", "500", "否"},
-            {"114", "BMW", "A6", "500", "是"},
-            {"115", "BMW", "A6", "500", "是"},
-            {"116", "BMW", "A6", "500", "是"},
-            {"117", "BMW", "A6", "500", "是"},
-            {"118", "BMW", "A6", "500", "是"},
-            {"119", "BMW", "A6", "500", "是"},
-            {"120", "BMW", "A6", "500", "是"},
-            {"121", "BMW", "A6", "500", "是"},
-            {"122", "BMW", "A6", "500", "是"},
-            {"123", "BMW", "A6", "500", "是"},
-            {"124", "BMW", "A6", "500", "是"},
-            {"125", "BMW", "A6", "500", "是"},
-            {"126", "BMW", "A6", "500", "是"},
-            {"127", "BMW", "A6", "500", "是"},
-            {"128", "BMW", "A6", "500", "是"},
-            {"129", "BMW", "A6", "500", "是"},
-            {"130", "BMW", "A6", "500", "是"},
-            {"131", "BMW", "A6", "500", "是"},
-            {"132", "BMW", "A6", "500", "是"},
-            {"133", "BMW", "A6", "500", "是"},
-            {"134", "BMW", "A6", "500", "是"},
-            {"135", "BMW", "A6", "500", "是"},
-            {"136", "BMW", "A6", "500", "是"},
-            {"137", "BMW", "A6", "500", "是"},
-            {"138", "BMW", "A6", "500", "是"},
-            {"139", "BMW", "A6", "500", "是"},
-            {"140", "BMW", "A6", "500", "是"},
-    };
+    private Object[] columnNames = {"carId", "carManufactory", "carModel", "carPrice", "isAvaiable"};
+    private List<List<Object>> infoList;
+
+    public MyTableModel(List<List<Object>> infoList) {
+        this.infoList = infoList;
+    }
+
     @Override
     public int getRowCount() {
-        return data.length;
+        return infoList.size();
     }
 
     @Override
@@ -95,23 +80,21 @@ class MyTableModel extends AbstractTableModel {
     }
 
     @Override
-    public String getColumnName(int column) {
-        return columnNames[column].toString();
-    }
+    public String getColumnName(int column) { return columnNames[column].toString(); }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return data[rowIndex][columnIndex];
+        return infoList.get(rowIndex).get(columnIndex);
     }
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return rowIndex!=0;
+        return columnIndex != 0;
     }
 
     @Override
     public void setValueAt(Object newValue, int rowIndex, int columnIndex) {
-        data[rowIndex][columnIndex] = newValue;
+        infoList.get(rowIndex).set(columnIndex, newValue);
         fireTableCellUpdated(rowIndex, columnIndex);
     }
 }
@@ -138,6 +121,7 @@ class GetVehicleInfo extends JDialog {
         carId.setBounds(35,20,80,25);
         panel.add(carId);
         IdInputBox = new JTextField(20);
+        IdInputBox.setDocument(new NumberDocument());
         IdInputBox.setBounds(100,20,165,25);
         panel.add(IdInputBox);
 
@@ -159,6 +143,7 @@ class GetVehicleInfo extends JDialog {
         carPrice.setBounds(35,110,80,25);
         panel.add(carPrice);
         PriceInputBox = new JTextField(20);
+        PriceInputBox.setDocument(new NumberDocument());
         PriceInputBox.setBounds(100, 110, 165, 25);
         panel.add(PriceInputBox);
 
@@ -197,14 +182,20 @@ class GetVehicleInfo extends JDialog {
                         }
                     }
                 }
-                setInfo(new VehicleInfo(carId, carManufactory,carModel,carPrice,isAvaiable));
                if (flag) {
-                   if (Rules.determineAdd(getVehicleInfo(), info))
+                   if (Rules.determineAdd(getVehicleInfo(), carManufactory, carModel, carPrice, isAvaiable)) {
+                       if (carId.equals(""))
+                        setInfo(new VehicleInfo(carManufactory,carModel,Integer.valueOf(carPrice),isAvaiable));
+                       else
+                           setInfo(new VehicleInfo(Integer.valueOf(carId), carManufactory,carModel,Integer.valueOf(carPrice),isAvaiable));
+                       try {
+                           Server.addRecord(info.carManufactory, info.carModel, info.carPrice, info.isAvaialble);
+                       } catch (Exception exception) {
+                           exception.printStackTrace();
+                       }
                        dispose();
-               } else {
-                   dispose();
+                   }
                }
-
             }
         });
 
@@ -222,19 +213,42 @@ class GetVehicleInfo extends JDialog {
 
 }
 
+
+//限制输入框内只能输入数字
+class NumberDocument extends PlainDocument {
+
+    public void insertString(int var1, String var2, AttributeSet var3) throws BadLocationException {
+        if (this.isNumeric(var2)) {
+            super.insertString(var1, var2, var3);
+        } else {
+            Toolkit.getDefaultToolkit().beep();
+        }
+
+    }
+
+    private boolean isNumeric(String var1) {
+        try {
+            Long.valueOf(var1);
+            return true;
+        } catch (NumberFormatException var3) {
+            return false;
+        }
+    }
+}
+
 class Rules {
 
-    public static boolean determineAdd(GetVehicleInfo getDialog, VehicleInfo info) {
-        if (info.carManufactory.equals("")) {
+    public static boolean determineAdd(GetVehicleInfo getDialog, String carManufactory, String carModel, String carPrice, Boolean isAvaialble) {
+        if (carManufactory.equals("")) {
             JOptionPane.showMessageDialog(getDialog, "请输入车辆厂家信息", "输入信息不全", 0);
             return false;
-        } else if(info.carModel.equals("")) {
+        } else if(carModel.equals("")) {
             JOptionPane.showMessageDialog(getDialog, "请输入车辆型号信息", "输入信息不全", 0);
             return false;
-        } else if (info.carPrice.equals("")) {
+        } else if (carPrice.equals("")) {
             JOptionPane.showMessageDialog(getDialog,"请输入租赁价格/日", "输入信息不全", 0);
             return false;
-        } if (info.isAvaialble == null) {
+        } if (isAvaialble == null) {
             JOptionPane.showMessageDialog(getDialog, "请选择是否可用", "输入信息不全", 0);
             return false;
         } else {
