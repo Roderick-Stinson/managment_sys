@@ -64,6 +64,8 @@ class MyTableModel extends AbstractTableModel {
         this.infoList = infoList;
     }
 
+    public void setInfoList(List<List<Object>> infoList) { this.infoList = infoList; }
+
     @Override
     public int getRowCount() {
         return infoList.size();
@@ -102,9 +104,11 @@ class GetVehicleInfo extends JDialog {
     public ButtonGroup group;
     public JButton btnConfirm;
     public VehicleInfo info;
-    public boolean flag;//true代表Add；flase代表Search
+    public boolean flag;//true代表Add；flase代表Search\
+    public List<List<Object>> infoList;
+    public ViewHolder viewHolder;
 
-    public GetVehicleInfo(Frame owner, Component parentComponent, boolean flag) {
+    public GetVehicleInfo(Frame owner, Component parentComponent, boolean flag, ViewHolder viewHolder) {
         super(owner, "请输入相关信息", true);
         this.flag = flag;
         this.setSize(300,230);
@@ -192,11 +196,12 @@ class GetVehicleInfo extends JDialog {
                    }
                } else {//查询按钮的规则逻辑
                    try {
-                       List<List<Object>> infoList = Server.searchRecord(carId.equals("") ? null : Integer.valueOf(carId), carManufactory.equals("") ? null : carManufactory, carModel.equals("") ? null : carModel, carPrice.equals("") ? null : Integer.valueOf(carPrice), isAvaiable);
-                       System.out.println("SDFASDF");
+                       infoList = Server.searchRecord(carId.equals("") ? null : Integer.valueOf(carId), carManufactory.equals("") ? null : carManufactory, carModel.equals("") ? null : carModel, carPrice.equals("") ? null : Integer.valueOf(carPrice), isAvaiable);
+                       viewHolder.setInfoList(infoList);
                    } catch (Exception exception) {
                        exception.printStackTrace();
                    }
+                   dispose();
                }
             }
         });
@@ -212,6 +217,8 @@ class GetVehicleInfo extends JDialog {
     public GetVehicleInfo getVehicleInfo() {
         return this;
     }
+
+    public List<List<Object>> getInfoList() { return this.infoList; }
 
 }
 

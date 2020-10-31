@@ -1,11 +1,13 @@
 package com.company.Client;
 
+import com.company.Model.VehicleInfo;
 import com.company.Server.Server;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -21,6 +23,8 @@ public class Main {
         LogIn logIn = new LogIn();
         MainPage mainPage = new MainPage();
         frame.add(mainPage);
+
+        ViewHolder viewHolder = new ViewHolder(null);
 
         logIn.btn_login.addActionListener(new ActionListener() {
             @Override
@@ -38,14 +42,16 @@ public class Main {
         mainPage.toolbar.btnAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GetVehicleInfo(frame, mainPage,true);
+                new GetVehicleInfo(frame, mainPage,true, viewHolder);
             }
         });
 
         mainPage.toolbar.btnSearch.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GetVehicleInfo(frame, mainPage, false);
+                new GetVehicleInfo(frame, mainPage, false, viewHolder);
+                mainPage.table.setModel(new MyTableModel(viewHolder.getInfoList()));
+                mainPage.table.repaint();
             }
         });
 
