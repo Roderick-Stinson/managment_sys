@@ -36,15 +36,15 @@ public class Server {
         } else {
             if (carManufactoryIn != null) {
                 //输入厂商
-                sql.append("AND carManufactory=" + carManufactoryIn + " ");
+                sql.append("AND carManufactory=" + '\'' + carManufactoryIn + '\'' + " ");
             }
             if (carModelIn != null) {
                 //输入型号
-                sql.append("AND carModel=" + carModelIn + " ");
+                sql.append("AND carModel=" + '\'' + carModelIn + '\'' + " ");
             }
             if (carPriceIn != null) {
                 //输入价格
-                sql.append("AND carPrice=" + carPriceIn + " ");
+                sql.append("AND carPrice=" + '\'' + carPriceIn + '\'' + " ");
             }
             if (isAvaiableIn != null) {
                 //输入可用性

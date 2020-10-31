@@ -113,10 +113,11 @@ class GetVehicleInfo extends JDialog {
     public List<List<Object>> infoList;
     public ViewHolder viewHolder;
 
-    public GetVehicleInfo(Frame owner, Component parentComponent, ViewHolder viewHolder) {
+    public GetVehicleInfo(Frame owner, Component parentComponent, boolean isAdd, ViewHolder viewHolder) {
         super(owner, "请输入相关信息", true);
         this.setSize(300,230);
         this.setLocationRelativeTo(parentComponent);
+        this.flag = isAdd;
 
         panel = new JPanel(null);
 

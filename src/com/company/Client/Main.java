@@ -26,6 +26,8 @@ public class Main {
         MainPage mainPage = new MainPage(viewHolder);
         frame.add(logIn);
 
+         TableModel tableModel = mainPage.table.getModel();
+
         logIn.btn_login.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -58,7 +60,7 @@ public class Main {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (viewHolder.getFlag())
-                    new GetVehicleInfo(frame, mainPage, viewHolder);
+                    new GetVehicleInfo(frame, mainPage, true, viewHolder);
                 else
                     return;
             }
@@ -67,13 +69,13 @@ public class Main {
         mainPage.toolbar.btnSearch.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GetVehicleInfo(frame, mainPage, viewHolder);
+                new GetVehicleInfo(frame, mainPage, false, viewHolder);
                 mainPage.table.setModel(new MyTableModel(viewHolder.getInfoList(), viewHolder.getFlag()));
                 mainPage.table.repaint();
             }
         });
 
-        TableModel tableModel = mainPage.table.getModel();
+
         tableModel.addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {
@@ -110,9 +112,10 @@ public class Main {
                 mainPage.toolbar.btnDelete.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        TableModel tableModel1 = mainPage.table.getModel();
                         if (viewHolder.getFlag()) {
                             for (int i = firstRow; i < firstRow + rowCount; ++i) {
-                                int carId = (int) tableModel.getValueAt(i, 0);
+                                int carId = (int) tableModel1.getValueAt(i, 0);
                                 try {
                                     Server.deleteRecord(carId);
                                 } catch (Exception exception) {
