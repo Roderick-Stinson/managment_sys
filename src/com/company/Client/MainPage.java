@@ -9,12 +9,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Frame;
-import java.awt.Component;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -35,7 +30,7 @@ public class MainPage extends JPanel {
         toolbar = new MyToolBar();
         this.add(this.toolbar, BorderLayout.NORTH);
 
-        table = new JTable(new MyTableModel(Server.searchRecord()));
+        table = new JTable(new MyTableModel(Server.searchRecord(null,null,null,null,null)));
         table.setPreferredScrollableViewportSize(new Dimension(400, 300));
 
         this.scrollPane = new JScrollPane(table);
@@ -182,7 +177,7 @@ class GetVehicleInfo extends JDialog {
                         }
                     }
                 }
-               if (flag) {
+               if (flag) {//添加按钮的规则逻辑
                    if (Rules.determineAdd(getVehicleInfo(), carManufactory, carModel, carPrice, isAvaiable)) {
                        if (carId.equals(""))
                         setInfo(new VehicleInfo(carManufactory,carModel,Integer.valueOf(carPrice),isAvaiable));
@@ -194,6 +189,13 @@ class GetVehicleInfo extends JDialog {
                            exception.printStackTrace();
                        }
                        dispose();
+                   }
+               } else {//查询按钮的规则逻辑
+                   try {
+                       List<List<Object>> infoList = Server.searchRecord(carId.equals("") ? null : Integer.valueOf(carId), carManufactory.equals("") ? null : carManufactory, carModel.equals("") ? null : carModel, carPrice.equals("") ? null : Integer.valueOf(carPrice), isAvaiable);
+                       System.out.println("SDFASDF");
+                   } catch (Exception exception) {
+                       exception.printStackTrace();
                    }
                }
             }

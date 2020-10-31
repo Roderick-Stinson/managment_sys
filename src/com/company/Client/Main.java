@@ -3,8 +3,6 @@ package com.company.Client;
 import com.company.Server.Server;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
@@ -71,24 +69,6 @@ public class Main {
             }
         });
 
-
-
-//        mainPage.table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-//            @Override
-//            public void valueChanged(ListSelectionEvent e) {
-//                int firstRow = 0, lastRow = 0;
-////                if (e.getValueIsAdjusting())
-////                    firstRow = e.getFirstIndex();
-////                else
-////                    lastRow = e.getLastIndex();
-//                firstRow = e.getFirstIndex();
-//                lastRow = e.getLastIndex();
-//            //    System.out.println("FirstIndex: " + firstRow + "LastIndex: " + lastRow);
-//                System.out.println(mainPage.table.getSelectedColumnCount());
-//
-//            }
-//        });
-
         mainPage.table.addMouseListener(new MouseAdapter() {
             int firstRow, rowCount;
 
@@ -96,14 +76,12 @@ public class Main {
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
                 firstRow = mainPage.table.getSelectedRow();
-                System.out.println(firstRow);
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
                 rowCount = mainPage.table.getSelectedRowCount();
-                System.out.println(rowCount);
 
                 mainPage.toolbar.btnDelete.addActionListener(new ActionListener() {
                     @Override
@@ -118,10 +96,7 @@ public class Main {
                         }
                     }
                 });
-
             }
-
-
         });
 
         frame.setVisible(true);

@@ -22,14 +22,38 @@ public class Server {
         return rst;
     }
 
-    public static List<List<Object>> searchRecord() throws Exception {
+    public static List<List<Object>> searchRecord(Integer carIdIn, String carManufactoryIn, String carModelIn, Integer carPriceIn, Boolean isAvaiableIn) throws Exception {
         DbUtil dbUtil = new DbUtil();
         Connection con = dbUtil.getCon();
 
         List<List<Object>> infoList = new ArrayList<>();
         List<Object> info;
-        String sql = "SELECT * FROM carList;";
-        PreparedStatement pstmt = con.prepareStatement(sql);
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT * FROM carList WHERE 1=1 ");
+        if (carIdIn != null) {
+            //输入carId
+            sql.append("AND carId=" + carIdIn + " ");
+        } else {
+            if (carManufactoryIn != null) {
+                //输入厂商
+                sql.append("AND carManufactory=" + carManufactoryIn + " ");
+            }
+            if (carModelIn != null) {
+                //输入型号
+                sql.append("AND carModel=" + carModelIn + " ");
+            }
+            if (carPriceIn != null) {
+                //输入价格
+                sql.append("AND carPrice=" + carPriceIn + " ");
+            }
+            if (isAvaiableIn != null) {
+                //输入可用性
+                sql.append("AND isAvaiable=" + isAvaiableIn + " ");
+            }
+        }
+        sql.append(";");
+
+        PreparedStatement pstmt = con.prepareStatement(sql.toString());
         ResultSet rs = pstmt.executeQuery();
         while (rs.next()) {
             info = new ArrayList<>();
@@ -78,20 +102,4 @@ public class Server {
         dbUtil.close(pstmt, con);
     }
 
-
-    public static void getMetaData() throws Exception {
-        DbUtil dbUtil = new DbUtil();
-        Connection con = dbUtil.getCon();
-        String sql = "SELECT count(*)  FROM userList;";
-        PreparedStatement pstat = con.prepareStatement(sql);
-        ResultSetMetaData rsmd = pstat.getMetaData();//获取结果集元数据
-        //DatabaseMetaData dbmd = con.getMetaData();
-        int count = rsmd.getColumnCount(); //获取结果集元数据列数
-        System.out.println("表一共有：" + count + "列");
-        //遍历属性名称
-        for (int i = 1; i <= count; i ++){
-            System.out.println("第" + i + "行的属性为：" + rsmd.getColumnName(i)
-                    + "，类型为：" + rsmd.getColumnTypeName(i));
-        }
-    }
 }
