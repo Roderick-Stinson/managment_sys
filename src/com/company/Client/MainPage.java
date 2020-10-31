@@ -1,6 +1,7 @@
 package com.company.Client;
 
 import com.company.Model.VehicleInfo;
+import com.company.Model.ViewHolder;
 import com.company.Server.Server;
 
 import javax.swing.*;
@@ -19,9 +20,11 @@ public class MainPage extends JPanel {
     public MyToolBar toolbar;
     public JScrollPane scrollPane;
     public JTable table;
+    public ViewHolder viewHolder;
 
-    public MainPage() throws Exception {
+    public MainPage(ViewHolder viewHolder) throws Exception {
         super(new BorderLayout());
+        this.viewHolder = viewHolder;
         init();
         this.setVisible(true);
     }
@@ -30,7 +33,7 @@ public class MainPage extends JPanel {
         toolbar = new MyToolBar();
         this.add(this.toolbar, BorderLayout.NORTH);
 
-        table = new JTable(new MyTableModel(Server.searchRecord(null,null,null,null,null)));
+        table = new JTable(new MyTableModel(Server.searchRecord(null,null,null,null,null), viewHolder.getFlag()));
         table.setPreferredScrollableViewportSize(new Dimension(400, 300));
 
         this.scrollPane = new JScrollPane(table);
@@ -59,9 +62,11 @@ class MyToolBar extends JPanel {
 class MyTableModel extends AbstractTableModel {
     private Object[] columnNames = {"carId", "carManufactory", "carModel", "carPrice", "isAvaiable"};
     private List<List<Object>> infoList;
+    public boolean flag;
 
-    public MyTableModel(List<List<Object>> infoList) {
+    public MyTableModel(List<List<Object>> infoList, boolean flag) {
         this.infoList = infoList;
+        this.flag = flag;
     }
 
     public void setInfoList(List<List<Object>> infoList) { this.infoList = infoList; }
@@ -86,7 +91,7 @@ class MyTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex != 0;
+        return columnIndex != 0 && flag;
     }
 
     @Override
@@ -108,9 +113,8 @@ class GetVehicleInfo extends JDialog {
     public List<List<Object>> infoList;
     public ViewHolder viewHolder;
 
-    public GetVehicleInfo(Frame owner, Component parentComponent, boolean flag, ViewHolder viewHolder) {
+    public GetVehicleInfo(Frame owner, Component parentComponent, ViewHolder viewHolder) {
         super(owner, "请输入相关信息", true);
-        this.flag = flag;
         this.setSize(300,230);
         this.setLocationRelativeTo(parentComponent);
 

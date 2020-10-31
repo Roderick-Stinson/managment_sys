@@ -5,7 +5,9 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 
 public class DbUtil {
-
+    //CarManagment为数据库名，改成自己的数据库名即可
+    //USerName和PWD为登录数据库的用户和密码，此处改为自己的
+    //运行前需添加数据库依赖
     private static final String URL = "jdbc:mysql://localhost:3306/CarManagment";
     private static final String jdbcName = "com.mysql.jdbc.Driver";
     private static final String USERNAME = "root";

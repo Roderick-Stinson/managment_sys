@@ -75,6 +75,23 @@ public class Server {
 
     }
 
+    public static Boolean searchUser(String userName, String pwd) throws Exception {
+        DbUtil dbUtil = new DbUtil();
+        Connection con = dbUtil.getCon();
+
+        Boolean admin = null;
+
+        String sql = "SELECT administrators FROM userList WHERE userName=? AND password=?;";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, userName);
+        pstmt.setString(2, pwd);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            admin = rs.getBoolean(1);
+        }
+        return admin;
+    }
+
     public static void updateRecord(String field, Object newValue, int carId) throws Exception {
         DbUtil dbUtil = new DbUtil();
         Connection con = dbUtil.getCon();

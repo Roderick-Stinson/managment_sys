@@ -1,13 +1,13 @@
 package com.company.Client;
 
-import com.company.Model.VehicleInfo;
+import com.company.Model.ViewHolder;
 import com.company.Server.Server;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
-import java.awt.*;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -15,25 +15,40 @@ import java.awt.event.MouseEvent;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception {
-        JFrame frame = new JFrame();
+     public static void main(String[] args) throws Exception {
+         ViewHolder viewHolder = new ViewHolder(null, false);
+
+         JFrame frame = new JFrame();
         frame.setSize(500, 500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         LogIn logIn = new LogIn();
-        MainPage mainPage = new MainPage();
-        frame.add(mainPage);
-
-        ViewHolder viewHolder = new ViewHolder(null);
+        MainPage mainPage = new MainPage(viewHolder);
+        frame.add(logIn);
 
         logIn.btn_login.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (logIn.userInputBox.getText().equals("aaa") && String.valueOf(logIn.pwdInputBox.getPassword()).equals("bbb")) {
-                    frame.getContentPane().setVisible(false);
-                    frame.setContentPane(mainPage);
-                } else {
-                    JOptionPane.showMessageDialog(logIn, "用户名或密码错误","错误", 0);
+                String userName = logIn.userInputBox.getText();
+                String pwd = String.valueOf(logIn.pwdInputBox.getPassword());
+
+                try {
+                    if (Server.searchUser(userName, pwd) == null) {
+                        JOptionPane.showMessageDialog(logIn, "用户名或密码错误", "错误", 0);
+                    } else if (Server.searchUser(userName, pwd)) {
+                        //超级管理员
+                        viewHolder.setFlag(true);
+                        frame.getContentPane().setVisible(false);
+                        frame.setContentPane(mainPage);
+                    } else {
+                        //普通用户
+                        viewHolder.setFlag(false);
+                        frame.getContentPane().setVisible(false);
+                        frame.setContentPane(mainPage);
+                    }
+
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
 
             }
@@ -42,15 +57,18 @@ public class Main {
         mainPage.toolbar.btnAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GetVehicleInfo(frame, mainPage,true, viewHolder);
+                if (viewHolder.getFlag())
+                    new GetVehicleInfo(frame, mainPage, viewHolder);
+                else
+                    return;
             }
         });
 
         mainPage.toolbar.btnSearch.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GetVehicleInfo(frame, mainPage, false, viewHolder);
-                mainPage.table.setModel(new MyTableModel(viewHolder.getInfoList()));
+                new GetVehicleInfo(frame, mainPage, viewHolder);
+                mainPage.table.setModel(new MyTableModel(viewHolder.getInfoList(), viewHolder.getFlag()));
                 mainPage.table.repaint();
             }
         });
@@ -92,14 +110,17 @@ public class Main {
                 mainPage.toolbar.btnDelete.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        for (int i = firstRow; i < firstRow+rowCount; ++i) {
-                            int carId = (int) tableModel.getValueAt(i, 0);
-                            try {
-                                Server.deleteRecord(carId);
-                            } catch (Exception exception) {
-                                exception.printStackTrace();
+                        if (viewHolder.getFlag()) {
+                            for (int i = firstRow; i < firstRow + rowCount; ++i) {
+                                int carId = (int) tableModel.getValueAt(i, 0);
+                                try {
+                                    Server.deleteRecord(carId);
+                                } catch (Exception exception) {
+                                    exception.printStackTrace();
+                                }
                             }
-                        }
+                        } else
+                            return;
                     }
                 });
             }
